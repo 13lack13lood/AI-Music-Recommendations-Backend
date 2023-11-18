@@ -74,6 +74,33 @@ app.post("/get-recommendation-artist-artist", async (req, res) => {
     }
 });
 
+app.post("/get-recommendation-artist-track", async (req, res) => {
+    try {
+        const { prompt } = req.body;
+
+        const content = "give me 12 popular songs giving the name and artist given that I like the following artists and send the result as a json object in the format:\nsong1: {\nname: ...\nartist: ...\n}\n" + prompt;
+
+        console.log(content);
+
+        const response = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: content }],
+        });
+
+        console.log(response.data.choices[0].message.content);
+
+        return res.status(200).json({
+            message: "Working",
+            data: response.data.choices[0].message.content,
+        });
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error.response ? error.response.data : "There was an issue on the server",
+        });
+    }
+});
+
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => console.log(`Server listening on port ${port}`));
